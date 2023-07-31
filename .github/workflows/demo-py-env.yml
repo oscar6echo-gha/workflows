@@ -22,12 +22,18 @@ jobs:
           echo ${{ github.workspace }}
           ls -al ${{ github.workspace }}
 
+      #   - name: Checkout conda-env
+      #     uses: actions/checkout@v3
+      #     with:
+      #       path: main
+
       - name: Checkout conda-env
         uses: actions/checkout@v3
         with:
-          path: main
+          repository: oscar6echo-gha/conda-env
+          path: conda-env
 
-      - name: Checkout pkg-1
+      - name: Checkout conda-env
         uses: actions/checkout@v3
         with:
           repository: oscar6echo-gha/pkg-1
@@ -42,8 +48,10 @@ jobs:
         with:
           #   micromamba-version: "1.4.4-0"
           micromamba-url: https://github.com/oscar6echo-gha/software/raw/main/micromamba-linux-64
-          environment-file: ${{ github.workspace }}/main/env.yml
-          condarc-file: ${{ github.workspace }}/main/.condarc
+          environment-file: ${{ github.workspace }}/conda-env/env.yml
+          condarc-file: ${{ github.workspace }}/conda-env/.condarc
+          #   environment-file: ${{ github.workspace }}/main/env.yml
+          #   condarc-file: ${{ github.workspace }}/main/.condarc
           create-args: -v
           init-shell: bash
           cache-environment: true
