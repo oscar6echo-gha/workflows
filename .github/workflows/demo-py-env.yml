@@ -1,0 +1,80 @@
+name: Build Micromamba env
+run-name: ${{ github.actor }} is building mm env
+
+on:
+  - workflow_dispatch
+
+jobs:
+  build-conda-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show runner characteristics
+        run: |
+          cat /etc/os-release
+          echo --- df -hT
+          df -hT
+          echo --- lscpu
+          lscpu
+
+      - name: Test init path
+        run: |
+          pwd
+          echo ${{ github.workspace }}
+          ls -al ${{ github.workspace }}
+
+      - name: Checkout conda-env
+        uses: actions/checkout@v3
+        with:
+          path: main
+
+      - name: Checkout pkg-1
+        uses: actions/checkout@v3
+        with:
+          repository: oscar6echo-gha/pkg-1
+          path: pkg-1
+
+      - name: Show path
+        run: |
+          echo ${{ github.workspace }}
+          ls -al ${{ github.workspace }}
+
+      - uses: oscar6echo-gha/setup-micromamba@v1.4.3
+        with:
+          #   micromamba-version: "1.4.4-0"
+          micromamba-url: https://github.com/oscar6echo-gha/software/raw/main/micromamba-linux-64
+          environment-file: ${{ github.workspace }}/main/env.yml
+          condarc-file: ${{ github.workspace }}/main/.condarc
+          create-args: -v
+          init-shell: bash
+          cache-environment: true
+          post-cleanup: "all"
+
+      - name: Test micromamba env
+        run: |
+          which python
+          which pip
+          python -c "import polars"
+          python -c "import dotenv"
+          pytest --version
+        shell: bash -l {0}
+
+      - name: Install pkg-1 in env
+        run: |
+          cd ${{ github.workspace }}/pkg-1
+          pip install .
+        shell: bash -l {0}
+
+      - name: Test pkg-1
+        run: |
+          python -c "import pkg_1.example as m; print(m.times_two(3)); print(m.square(3));"
+        shell: bash -l {0}
+
+      - name: Test print secret
+        env:
+          REPO_SECRET_1: ${{ secrets.MY_REPO_SECRET_1 }}
+        run: |
+          mkdir $HOME/secrets
+          echo "store secret in file: $HOME/secrets/repo_secret_1.txt"
+          echo $REPO_SECRET_1 | base64 -d > $HOME/secrets/repo_secret_1.txt
+          cat $HOME/secrets/repo_secret_1.txt
+        shell: bash

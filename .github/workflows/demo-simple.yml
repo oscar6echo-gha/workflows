@@ -1,0 +1,70 @@
+name: Test runner properties
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+
+on:
+  - push
+  - workflow_dispatch
+
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - run: echo "🍏 This job's status is ${{ job.status }}."
+      - name: Show runner characteristics
+        run: |
+          cat /etc/os-release
+
+          echo --- echo $AGENT_TOOLSDIRECTORY
+          echo $AGENT_TOOLSDIRECTORY
+
+          echo --- df -hT
+          df -hT
+
+          echo --- ls -al /
+          ls -al /
+
+          echo --- ls -al /mnt
+          ls -al /mnt
+
+          echo --- lscpu
+          lscpu
+
+      - name: Free space
+        run: |
+          sudo docker rmi $(docker image ls -aq) || true
+          sudo swapoff /mnt/swapfile || true
+          sudo rm -rf /mnt/swapfile /usr/share/dotnet /usr/local/lib/android /opt/ghc
+
+          echo --- rm -rf $AGENT_TOOLSDIRECTORY
+          rm -rf  $AGENT_TOOLSDIRECTORY
+
+          mkdir $HOME/data
+          ls -al $HOME/data
+
+      - name: Check space
+        run: |
+          echo --- df -hT
+          df -hT
+
+      - name: Check software
+        run: |
+          which node
+          which npm
+          node -v
+          npm -v
+
+# echo --- sudo du -h -d 1 various directories
+# echo ----------------
+# sudo du -h -d 1 /home
+# sudo du -h -d 1 /usr/share
+# sudo du -h -d 1 /mnt
